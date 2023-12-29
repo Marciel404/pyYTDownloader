@@ -1,8 +1,8 @@
 class Translate:
+
     lg = {
         "pt-BR": {
-            "menu": """
-0 - Opções
+            "menu": f"""0 - Opções
 1 - Download aúdio
 2 - Download Vídeo
 3 - Download somente vídeo (Sem áudio)
@@ -23,5 +23,5 @@ class Translate:
     }
 
     @classmethod
-    def lang(cls, lang: str, arg: str) -> str:
-        return cls.lg[lang][arg]
+    def lang(cls, lang: str) -> str:
+        return cls.lg[lang]
