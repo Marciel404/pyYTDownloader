@@ -42,6 +42,8 @@ class BuildConsole:
 
         try:
             options[int(input(self.translate["selectOpt"]))]()
+        except KeyError:
+            print("Opção desconhecida")
         except Exception as err:
             print(err)
 
