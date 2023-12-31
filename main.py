@@ -1,10 +1,5 @@
-import os
 import time
-
-from youtubesearchpython import Search
 from pytube import YouTube
-from translates import Translate
-from utils import printerLogo
 
 
 class _EmptyName:
@@ -26,30 +21,32 @@ class BuildConsole:
 
     def __init__(self):
 
+        from translates import Translate
+        from utils import printerLogo
+
         lang = "pt-BR"
 
-        self.translate = Translate.lang(lang)
+        self.translate: dict[str] = Translate.lang(lang)
 
         printerLogo()
 
         print(self.translate["menu"])
 
-        Option = int(input(self.translate["selectOpt"]))
-
         options = {
             0: lambda: self.config(),
             1: lambda: self.download_only_audio(input(self.translate["NameOrUrlA"])),
             2: lambda: self.download_video(input(self.translate["NameOrUrlV"])),
-            3: lambda: self.download_only_video(input(self.translate["NameOrUrlVov"]))
+            3: lambda: self.download_only_video(input(self.translate["NameOrUrlVov"])),
+            4: lambda: exit("Seção encerrada pelo client")
         }
 
         try:
-            options[Option]()
+            options[int(input(self.translate["selectOpt"]))]()
         except Exception as err:
-            if err.args.__len__() == 1:
-                print("Opção desconhecida", err)
-                time.sleep(5)
-            BuildConsole()
+            print(err)
+
+        time.sleep(5)
+        BuildConsole()
 
     @property
     def name(self) -> str:
@@ -68,7 +65,7 @@ class BuildConsole:
         """
         import re
         self._name = re.sub(
-            r"[&@¨|:!'\"\\/\n]",
+            r"[&@¨|:!'\"\\/\n?]",
             "",
             f"{value}\n",
             0,
@@ -77,7 +74,6 @@ class BuildConsole:
 
     def config(self) -> None:
         ...
-
 
     def download_only_audio(self, name: str) -> None:
 
@@ -99,7 +95,7 @@ class BuildConsole:
                 .get_audio_only() \
                 .download(output_path="Musics",
                           filename=f"{self.name}.wav"
-                )
+                          )
 
             print(self.translate["endD"])
 
@@ -119,7 +115,7 @@ class BuildConsole:
                 .get_audio_only() \
                 .download(output_path="Musics",
                           filename=f"{self.name}.wav",
-                )
+                          )
 
             print(self.translate["endD"])
 
@@ -146,10 +142,9 @@ class BuildConsole:
                 .first() \
                 .download(output_path="Videos",
                           filename=f"{self.name}.mp4"
-                )
+                          )
 
             print(self.translate["endD"])
-
 
         else:
 
@@ -169,7 +164,7 @@ class BuildConsole:
                 .first() \
                 .download(output_path="Videos",
                           filename=f"{self.name}.mp4"
-                )
+                          )
 
             print(self.translate["endD"])
 
@@ -198,10 +193,9 @@ class BuildConsole:
                 .first() \
                 .download(output_path="Videos",
                           filename=f"{self.name}.mp4"
-                )
+                          )
 
             print(self.translate["endD"])
-
 
         else:
 
@@ -221,26 +215,35 @@ class BuildConsole:
                 .first() \
                 .download(output_path="Videos",
                           filename=f"{self.name}.mp4"
-                )
+                          )
 
             print(self.translate["endD"])
 
         time.sleep(5)
         BuildConsole()
 
-    def pesquisar(self, name: str) -> dict:
+    def pesquisar(self, name: str) -> list:
         """
         Search the YouTube videos and form them into a neat string and show them on the console
         :param name:
         :return: dict[str,dict[str,[str, str]]
         """
 
-        q: dict = Search(name, 5, "any", "any").result()["result"]
+        from youtubesearchpython import Search
 
-        for i, r in enumerate(q):
-            BuildConsole.formatString(i + 1, r)
+        query: list = Search(name, 5, "any", "any").result()["result"]
 
-        return q
+        Array: list = []
+
+        for result in query:
+            print(result)
+            if "viewCount" in result and result["publishedTime"] is not None:
+                Array.append(result)
+
+        for i, r in enumerate(Array):
+            self.formatString(i + 1, r)
+
+        return Array
 
     def formatString(self, index: int, Array: dict[str, dict[str, str]]) -> None:
 
@@ -250,9 +253,9 @@ class BuildConsole:
         :param Array:
         :return:
         """
-
-        views = Array["viewCount"]["short"] if Array["viewCount"]["text"].count(",") >= 2 else Array["viewCount"][
-            "text"]
+        views = (Array["viewCount"]["short"]
+                 if Array["viewCount"]["text"].count(",") >= 2
+                 else Array["viewCount"]["text"])
 
         print("-" * 20)
         print(f"""{index} - {Array["title"]}

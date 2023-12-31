@@ -6,6 +6,7 @@ class Translate:
 1 - Download aúdio
 2 - Download Vídeo
 3 - Download somente vídeo (Sem áudio)
+4 - Sair
             """,
             "selectOpt": "Selecione uma opção: ",
             "NameOrUrlA": "Nome ou Url do video que deseja baixar o áudio: ",
@@ -23,5 +24,5 @@ class Translate:
     }
 
     @classmethod
-    def lang(cls, lang: str) -> str:
+    def lang(cls, lang: str) -> dict[str]:
         return cls.lg[lang]
