@@ -44,6 +44,34 @@ class bcolors:
     CWHITEBG2 = '\33[107m'
 
 
+def pesquisar(name: str) -> list:
+    """
+    Search the YouTube videos and form them into a neat string and show them on the console
+    :param name:
+    :return: dict[str,dict[str,[str, str]]
+    """
+
+    from main import BuildConsole
+    from youtubesearchpython import Search
+
+    query: list = Search(name, 5, "any", "any").result()["result"]
+
+    Array: list = []
+
+    for result in query:
+        if "viewCount" in result and result["publishedTime"] is not None:
+            if "http" in name:
+                if name == result["link"]:
+                    Array.append(result)
+            else:
+                Array.append(result)
+
+    for i, r in enumerate(Array):
+        BuildConsole.formatString(i + 1, r)
+
+    return Array
+
+
 def printerLogo():
     import os
     import psutil

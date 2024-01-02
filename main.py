@@ -1,5 +1,6 @@
 import time
 from pytube import YouTube
+from utils import pesquisar
 
 
 class _EmptyName:
@@ -18,15 +19,15 @@ EmptyName = _EmptyName()
 
 
 class BuildConsole:
+    from translates import Translate
+
+    lang = "pt-BR"
+
+    translate: dict[str] = Translate.lang(lang)
 
     def __init__(self):
 
-        from translates import Translate
         from utils import printerLogo
-
-        lang = "pt-BR"
-
-        self.translate: dict[str] = Translate.lang(lang)
 
         printerLogo()
 
@@ -85,13 +86,15 @@ class BuildConsole:
         :return:
         """
 
+        query = pesquisar(name)
+
         if "http" in name:
 
             print(self.translate["startD"])
 
             yt = YouTube(name)
 
-            self.name = yt.title
+            self.name = query[0]["title"]
 
             yt.streams \
                 .get_audio_only() \
@@ -102,8 +105,6 @@ class BuildConsole:
             print(self.translate["endD"])
 
         else:
-
-            query = self.pesquisar(name)
 
             slcV = int(input(self.translate["slcV"])) - 1
 
@@ -130,13 +131,16 @@ class BuildConsole:
         :param name:
         :return:
         """
-        if "http" in name:
 
-            yt = YouTube(name)
+        query = pesquisar(name)
+
+        if "http" in name:
 
             print(self.translate["startD"])
 
-            self.name = yt.title
+            yt = YouTube(name)
+
+            self.name = query[0]["title"]
 
             yt \
                 .streams \
@@ -149,8 +153,6 @@ class BuildConsole:
             print(self.translate["endD"])
 
         else:
-
-            query = self.pesquisar(name)
 
             slcV = int(input(self.translate["slcV"])) - 1
 
@@ -181,13 +183,15 @@ class BuildConsole:
         :return:
         """
 
-        if "http" in name:
+        query = pesquisar(name)
 
-            yt = YouTube(name)
+        if "http" in name:
 
             print(self.translate["startD"])
 
-            self.name = yt.title
+            yt = YouTube(name)
+
+            self.name = query[0]["title"]
 
             yt \
                 .streams \
@@ -200,8 +204,6 @@ class BuildConsole:
             print(self.translate["endD"])
 
         else:
-
-            query = self.pesquisar(name)
 
             slcV = int(input(self.translate["slcV"])) - 1
 
@@ -224,30 +226,8 @@ class BuildConsole:
         time.sleep(5)
         BuildConsole()
 
-    def pesquisar(self, name: str) -> list:
-        """
-        Search the YouTube videos and form them into a neat string and show them on the console
-        :param name:
-        :return: dict[str,dict[str,[str, str]]
-        """
-
-        from youtubesearchpython import Search
-
-        query: list = Search(name, 5, "any", "any").result()["result"]
-
-        Array: list = []
-
-        for result in query:
-            print(result)
-            if "viewCount" in result and result["publishedTime"] is not None:
-                Array.append(result)
-
-        for i, r in enumerate(Array):
-            self.formatString(i + 1, r)
-
-        return Array
-
-    def formatString(self, index: int, Array: dict[str, dict[str, str]]) -> None:
+    @classmethod
+    def formatString(cls, index: int, Array: dict[str, dict[str, str]]) -> None:
 
         """
         Formats surveys into prettier text
@@ -262,9 +242,9 @@ class BuildConsole:
         print("-" * 20)
         print(f"""{index} - {Array["title"]}
 Link: {Array["link"]}
-{self.translate["channel"]} {Array["channel"]["name"]} ({Array["channel"]["link"]})
-{self.translate["tPB"]} {Array["publishedTime"]}
-{self.translate["Views"]} {views}""")
+{cls.translate["channel"]} {Array["channel"]["name"]} ({Array["channel"]["link"]})
+{cls.translate["tPB"]} {Array["publishedTime"]}
+{cls.translate["Views"]} {views}""")
         print("-" * 20)
 
 
